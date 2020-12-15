@@ -15,7 +15,7 @@ def populate_job_details(execution_id, table_name):
       ":newStatus": "WAITING"
     },
     ExpressionAttributeNames={
-      "#s": "Status"
+      "#s": "status"
     },
     ReturnValues="UPDATED_NEW"
   )
