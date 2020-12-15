@@ -11,10 +11,9 @@ print('Loading function')
 
 s3 = boto3.client('s3')
 
-TABLE = os.environ['TABLE']
-GLACIER_RESTORE_TABLE = os.environ['GLACIER_RESTORE_TABLE']
-Topic = os.environ['SNS_ARN']
-SQSQueueURL = os.environ['SQS_QUEUE_URL']
+snakemake_table = os.environ['SNAKEMAKE_TABLE']
+status_table = os.environ['STATUS_TABLE']
+sqs_queue_url = os.environ['SQS_QUEUE_URL']
 
 def handler(event, context):
 
@@ -28,9 +27,9 @@ def handler(event, context):
         execution_id = json_content['execution_id']
         bcl_paths = json_content['bcl_paths']
         print("CONTENT TYPE: " + content_object['ContentType'] + " Execution ID: " + json_content['execution_id'])
-        s3_restore.s3_restore(bcl_paths, execution_id, GLACIER_RESTORE_TABLE)
-        dynamodb_operations.populate_job_details(execution_id, TABLE)
-        sqs_operations.send_message(execution_id, SQSQueueURL)
+        s3_restore.s3_restore(bcl_paths, execution_id, status_table)
+        dynamodb_operations.populate_job_details(execution_id, snakemake_table)
+        sqs_operations.send_message(execution_id, sqs_queue_url)
         return {
           'statusCode': 200,
           'body':       json.dumps(json_content)

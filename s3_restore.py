@@ -2,8 +2,7 @@ import boto3
 import dynamodb_operations
 import json
 
-def s3_restore(bcl_paths, execution_id, GLACIER_RESTORE_TABLE):
-    client = boto3.client('s3')
+def s3_restore(bcl_paths, execution_id, status_table):
     s3 = boto3.resource('s3')
     for x in bcl_paths:
         bcl_prefix=x['bcl_prefix']
@@ -21,7 +20,7 @@ def s3_restore(bcl_paths, execution_id, GLACIER_RESTORE_TABLE):
                     if obj.restore is None:
                         print('Submitting restoration request: %s' % obj.key)
                         obj.restore_object(RestoreRequest={'Days': 1})
-                    dynamodb_operations.populate_job_details_restoring(execution_id, GLACIER_RESTORE_TABLE, restoration_list, obj_summary.bucket_name)
+                    dynamodb_operations.populate_job_details_restoring(execution_id, status_table, restoration_list, obj_summary.bucket_name)
                 # Print out objects whose restoration is complete
                 elif 'ongoing-request="false"' in obj.restore:
                     print('Restoration complete: %s' % obj.key)
