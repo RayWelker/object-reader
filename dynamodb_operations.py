@@ -1,11 +1,9 @@
 import boto3
 from boto3.dynamodb.conditions import Key
 
-PRIMARY_KEY = 'executionId'
-
-def populate_job_details(execution_id, table_name):
+def populate_job_details(execution_id, snakemake_table):
   dynamodb = boto3.resource('dynamodb')
-  table = dynamodb.Table(table_name)
+  table = dynamodb.Table(snakemake_table)
   table.update_item(
     Key={
       "executionId": execution_id,
@@ -21,9 +19,9 @@ def populate_job_details(execution_id, table_name):
   )
   return True
 
-def populate_job_details_restoring(execution_id, GLACIER_RESTORE_TABLE, obj_key, obj_bucket):
+def populate_job_details_restoring(execution_id, status_table, obj_key, obj_bucket):
   dynamodb = boto3.resource('dynamodb')
-  table = dynamodb.Table(GLACIER_RESTORE_TABLE)
+  table = dynamodb.Table(status_table)
   table.update_item(
     Key={
       "executionId": execution_id,
@@ -43,9 +41,9 @@ def populate_job_details_restoring(execution_id, GLACIER_RESTORE_TABLE, obj_key,
   )
   return True
 
-def populate_job_details_complete(execution_id, GLACIER_RESTORE_TABLE, obj_key):
+def populate_job_details_complete(execution_id, status_table, obj_key):
   dynamodb = boto3.resource('dynamodb')
-  table = dynamodb.Table(GLACIER_RESTORE_TABLE)
+  table = dynamodb.Table(status_table)
   table.update_item(
     Key={
       "executionId": execution_id,
