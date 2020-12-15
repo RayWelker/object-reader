@@ -10,7 +10,9 @@ import sqs_operations
 print('Loading function')
 
 s3 = boto3.client('s3')
+
 TABLE = os.environ['TABLE']
+GLACIER_RESTORE_TABLE = os.environ['GLACIER_RESTORE_TABLE']
 Topic = os.environ['SNS_ARN']
 SQSQueueURL = os.environ['SQS_QUEUE_URL']
 
@@ -26,7 +28,7 @@ def handler(event, context):
         execution_id = json_content['execution_id']
         bcl_paths = json_content['bcl_paths']
         print("CONTENT TYPE: " + content_object['ContentType'] + " Execution ID: " + json_content['execution_id'])
-        s3_restore.s3_restore(bcl_paths)
+        s3_restore.s3_restore(bcl_paths, execution_id, GLACIER_RESTORE_TABLE)
         dynamodb_operations.populate_job_details(execution_id, TABLE)
         sqs_operations.send_message(execution_id, SQSQueueURL)
         return {
